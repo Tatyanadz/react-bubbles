@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axiosWithAuth from '../utils/axiosWithAuth'
+import styled from 'styled-components'
+
+
 
 const initialColor = {
   color: "",
@@ -18,13 +21,32 @@ const ColorList = ({ colors, updateColors }) => {
 
   const saveEdit = e => {
     e.preventDefault();
-    // Make a put request to save your updated color
-    // think about where will you get the id from...
-    // where is is saved right now?
+    
+    axiosWithAuth()
+      .put(`colors/${colorToEdit.id}`, colorToEdit)
+      .then(result => {
+        setEditing(false)
+        updateColors(
+          colors.map(item => {
+            return item.id === colorToEdit.id ? colorToEdit : item;
+          })
+        )
+      })
+      .catch(err => console.log(err))
   };
 
   const deleteColor = color => {
-    // make a delete request to delete this color
+    
+    axiosWithAuth()
+      .delete(`/colors/${color.id}`)
+      .then(response => {
+        updateColors(
+          colors.filter(color => {
+            return color.id !== response.data
+          })
+        )
+      })
+      .catch(err => console.log(err))
   };
 
   return (
@@ -87,3 +109,20 @@ const ColorList = ({ colors, updateColors }) => {
 };
 
 export default ColorList;
+
+
+const FormDiv = styled.form`
+  label {
+    font-size: 1em;
+    padding: 5px;
+  }
+  width: 100%;
+  input {
+    background: none;
+    border: none;
+    color: black;
+    border-bottom: 1px solid black;
+    margin-top: 0;
+    font-size: 1em;
+  }
+`;
